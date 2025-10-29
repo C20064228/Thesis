@@ -15,7 +15,7 @@ from collections import OrderedDict
 from torchvision import transforms
 from torchvision.transforms import ToPILImage
 from torch.utils.data import DataLoader
-from torch.optim.lr_scheduler import StepLR
+from torch.optim.lr_scheduler import StepLR, CosineAnnealingLR, OneCycleLR
 from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import f1_score, cohen_kappa_score
 from tqdm import tqdm
@@ -124,7 +124,8 @@ def train(args, output_dir):
             model.to(device)
             criterion = nn.CrossEntropyLoss(weight=class_weights, label_smoothing=0.1)
             optimizer = optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
-            scheduler = StepLR(optimizer, step_size=5, gamma=0.8)
+            #scheduler = StepLR(optimizer, step_size=5, gamma=0.8)
+            scheduler = CosineAnnealingLR(optimizer, T_max=20, eta_min=1e-5)
             history = np.zeros((0,5))
             logging.info(f'[Fold : {fold + 1}]')
             with tqdm(total=args.epochs, desc=f'{f"Epoch X":<10}', bar_format=args.format, ascii=args.ascii, leave=False) as qbar:
@@ -208,6 +209,7 @@ def train(args, output_dir):
                 ('Acc', f'{np.mean(fold_acc):.4f}')
             ]))
             pbar.update()
+            eval_history(args, histories, output_dir)
 
     eval_history(args, histories, output_dir)
     confusion(args, all_labels, all_preds, classes, output_dir)

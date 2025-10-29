@@ -9,3 +9,4 @@
     $$\frac{1}{\sqrt{\log{x}}}$$
 - `ResNet18 → ResNet50dへ変更`：
 - `macro F1 & Kappa係数の導入`：
+- `Schedulerの変更`： CosineAnnealingLR

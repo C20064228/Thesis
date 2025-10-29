@@ -17,7 +17,6 @@ class MidNet(nn.Module):
         self.resnet_proj = nn.Sequential(
             nn.Linear(resnet_feat, 512),
             nn.ReLU(),
-            nn.Dropout(dropout),
             nn.Linear(512, 256))
 
         self.vit = timm.create_model('vit_base_patch16_224', pretrained=True)
@@ -28,7 +27,6 @@ class MidNet(nn.Module):
         self.vit_proj = nn.Sequential(
             nn.Linear(vit_feat, 512),
             nn.ReLU(),
-            nn.Dropout(dropout),
             nn.Linear(512, 256))
 
         self.classifier = nn.Sequential(
