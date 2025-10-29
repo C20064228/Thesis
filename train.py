@@ -23,6 +23,7 @@ from Utils.args import get_args
 from Utils.eval_func import eval_history, confusion, summarize_result
 
 from Models.ResNet18 import *
+from Models.ViT import *
 
 for name in logging.root.manager.loggerDict:
     if "huggingface" in name or "timm" in name:
@@ -34,10 +35,12 @@ def train(args, output_dir):
         if args.view in ['Top', 'Side']:
             model_dict = {
                 'ResNet18': ResNet18,
+                'ViT': ViT
             }
         else:
             model_dict = {
                 'ResNet18': ResNet18_F,
+                'ViT': ViT_F,
             }
         model_class = model_dict.get(args.model)
         model = model_class(n_classes)
@@ -91,7 +94,6 @@ def train(args, output_dir):
     logging.basicConfig(filename=log_path, level=logging.INFO, format='%(message)s', filemode='w')
 
     fold_loss, fold_acc, fold_f1, fold_kappa = [], [], [], []
-    train_accs, test_accs = [], []
     all_preds, all_labels = [], []
 
     histories = {}
@@ -181,4 +183,5 @@ if __name__ == '__main__':
     output_dir = f'Output/{args.view}/{args.model}'
     if not os.path.exists(output_dir):
         os.makedirs(output_dir, exist_ok=True)
+    print(f'[{args.view:^10}:{args.model:^10}]')
     train(args, output_dir)

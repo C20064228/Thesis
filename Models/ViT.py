@@ -14,7 +14,7 @@ class ViT(nn.Module):
     def forward(self, x):
         return self.model(x)
 
-class ResNet18_F(nn.Module):
+class ViT_F(nn.Module):
     def __init__(self, n_classes, dropout=0.3):
         super().__init__()
         self.backbones = nn.ModuleList([self._create_backbone() for _ in range(2)])
