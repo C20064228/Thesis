@@ -1,0 +1,10 @@
+[Fold : 1]
+[ 1: 1] (Train) Loss=0.0633 Acc=0.4973 (Test) Loss=0.0567 Acc=0.5953 F1=0.1092 Kappa=0.3098
+[Fold : 2]
+[ 1: 1] (Train) Loss=0.0632 Acc=0.5129 (Test) Loss=0.0560 Acc=0.6594 F1=0.1633 Kappa=0.4417
+[Fold : 3]
+[ 1: 1] (Train) Loss=0.0643 Acc=0.4842 (Test) Loss=0.0561 Acc=0.6594 F1=0.1581 Kappa=0.4427
+[Fold : 4]
+[ 1: 1] (Train) Loss=0.0630 Acc=0.5104 (Test) Loss=0.0559 Acc=0.6390 F1=0.1474 Kappa=0.4061
+[Fold : 5]
+[ 1: 1] (Train) Loss=0.0639 Acc=0.5011 (Test) Loss=0.0563 Acc=0.6924 F1=0.1661 Kappa=0.5127
