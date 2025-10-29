@@ -2,6 +2,7 @@ import warnings
 warnings.simplefilter("ignore")
 
 import os
+import time
 import logging
 import numpy as np
 import pandas as pd
@@ -12,6 +13,7 @@ import torch.nn as nn
 import torch.optim as optim
 from collections import OrderedDict
 from torchvision import transforms
+from torchvision.transforms import ToPILImage
 from torch.utils.data import DataLoader
 from torch.optim.lr_scheduler import StepLR
 from sklearn.model_selection import StratifiedKFold
@@ -76,18 +78,31 @@ def train(args, output_dir):
     df = torch.load('Data/Dataset.pt', weights_only=False)
     imgs, labels = df[args.view], df['Label']
 
+    to_pil = ToPILImage()   # tensor -> PIL Image 変換用
+
     loaders = {}
     skf = StratifiedKFold(n_splits=args.splits, shuffle=True, random_state=42)
     for fold, (train_idx, test_idx) in enumerate(skf.split(imgs, labels)):
         df_train, label_train = make_dataset(train_idx, imgs, labels)
         df_test, label_test = make_dataset(test_idx, imgs, labels)
-        train_dataset = OriginalDataset(df_train, label_train, transform=get_transform(True))
-        test_dataset = OriginalDataset(df_test, label_test, transform=get_transform(False))
+        if args.diffusion:
+            few_classes_idx = [i for i, label in enumerate(label_train) if label in args.few_classes]
+            if few_classes_idx:
+                pil_imgs_train = [(to_pil((df_train[i] + 1).clamp(0, 1))) for i in few_classes_idx]
+                pil_labels_train = [label_train[i] for i in few_classes_idx]
+
+                gen_imgs, gen_labels = [], []
+                class_to_indices = {cls: [] for cls in args.few_classes}
+                for idx, label in zip(few_classes_idx, pil_labels_train):
+                    class_to_indices[label].append(idx)
+        
+        else:
+            train_dataset = OriginalDataset(df_train, label_train, transform=get_transform(True))
+            test_dataset = OriginalDataset(df_test, label_test, transform=get_transform(False))
         loaders[fold] = {
             'Train': DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True),
             'Test': DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False)
         }
-
 
     counts = label_df.sort_values('Encode')['Counts'].to_numpy()
 
@@ -100,6 +115,7 @@ def train(args, output_dir):
 
     fold_loss, fold_acc, fold_f1, fold_kappa = [], [], [], []
     all_preds, all_labels = [], []
+    all_times = []
 
     histories = {}
     with tqdm(total=args.splits, desc=f'{f"Fold  X":<10}', bar_format=args.format, ascii=args.ascii) as pbar:
@@ -142,17 +158,22 @@ def train(args, output_dir):
                         for imgs, labels in tqdm(loaders[fold]['Test'], desc=f'{"Test":<10}', bar_format=args.format, ascii=args.ascii, leave=False):
                             inputs = (imgs.to(device), )
                             labels = labels.to(device)
+                            start_time = time.time()
                             if args.model == 'MidNet':
                                 outputs, kd_loss = model(*inputs, kd=True)
+                                end_time = time.time()
                                 ce_loss = criterion(outputs, labels)
                                 loss = ce_loss + kd_loss
                             else:
                                 outputs = model(*inputs)
+                                end_time = time.time()
                                 loss = criterion(outputs, labels)
                             test_loss += loss.item()
                             predicted = outputs.argmax(dim=1)
                             n_test += labels.size(0)
                             test_acc += (predicted == labels).sum().item()
+                            diff_time = end_time - start_time
+                            all_times.append(diff_time)
 
                             Preds.extend(predicted.cpu())
                             Labels.extend(labels.cpu())
@@ -190,7 +211,7 @@ def train(args, output_dir):
 
     eval_history(args, histories, output_dir)
     confusion(args, all_labels, all_preds, classes, output_dir)
-    summarize_result(args, fold_loss, fold_acc, fold_f1, fold_kappa)
+    summarize_result(args, fold_loss, fold_acc, fold_f1, fold_kappa, all_times)
 
 if __name__ == '__main__':
     args = get_args()

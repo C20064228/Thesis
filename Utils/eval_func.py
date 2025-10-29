@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import pandas as pd
+import seaborn as sns
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
@@ -57,20 +58,52 @@ def confusion(args, labels, preds, classes, output_dir):
     plt.savefig(os.path.join(output_dir,'confusion_matrix.png'))
     plt.close()
 
-def summarize_result(args, loss, acc, f1, kappa):
+    mutual_misclassification = {}
+    n_classes = cm.shape[0]
+    for i in range(n_classes):
+        for j in range(i + 1, n_classes):
+            mutual_misclassification[f'{classes[i]} - {classes[j]}'] = cm[i, j] + cm[j, i]
+    df = pd.DataFrame(list(mutual_misclassification.items()), columns=['Label Pair', 'Mutual Misclassification'])
+    df_sorted = df.sort_values('Mutual Classification', ascending=False).head(10)
+
+    n_labels = df_sorted['Label Pair'].nunique()
+    cmap = plt.colormaps.get_cmap('Reds_r').resampled(n_labels)
+    custom_palette = [cmap(i) for i in np.linspace(0, 0.8, n_labels)]
+
+    plt.figure(figsize=(10, 6))
+    plt.grid(color='gray', linestyle=':')
+    ax = sns.barplot(data=df_sorted,
+                     x='Label Pair', y='Mutual Misclassification',
+                     hue='Label Pair',
+                     hue_order=df_sorted['Label Pair'].unique(),
+                     dodge=False,
+                     palette=custom_palette,
+                     legend=False)
+    for container in ax.containers:
+        ax.bar_label(container, fmt='%d', label_type='edge', fontsize=12, padding=2)
+    plt.title('Top-10 Mutual Misclassification')
+    plt.xlabel('Label Pair', fontsize=14)
+    plt.ylabel('Mutual Misclassification', fontsize=14)
+    plt.xticks(fontsize=10)
+    plt.tight_layout()
+    plt.savefig(os.path.join(output_dir, 'Misclassify.png'))
+
+
+def summarize_result(args, loss, acc, f1, kappa, times):
     row = {
         'View': args.view,
         'Model': args.model,
         'Loss': f'{np.mean(loss):.4f} ± {np.std(loss):.4f}',
         'Acc': f'{np.mean(acc):.4f} ± {np.std(acc):.4f}',
         'macro F1': f'{np.mean(f1):.4f} ± {np.std(f1):.4f}',
-        'Kappa': f'{np.mean(kappa):.4f} ± {np.std(kappa):.4f}'
+        'Kappa': f'{np.mean(kappa):.4f} ± {np.std(kappa):.4f}',
+        'Time': f'{np.mean(times):.4f} ± {np.std(times):.4f}'
     }
     if os.path.exists('Output/Results.csv'):
         df = pd.read_csv('Output/Results.csv', dtype=str)
         mask = (df['View'] == args.view) & (df['Model'] == args.model)
         if mask.any():
-            df.loc[mask, ['Loss', 'Acc', 'macro F1', 'Kappa']] = row['Loss'], row['Acc'], row['macro F1'], row['Kappa']
+            df.loc[mask, ['Loss', 'Acc', 'macro F1', 'Kappa', 'Time']] = row['Loss'], row['Acc'], row['macro F1'], row['Kappa'], row['Time']
         else:
             df = pd.concat([df, pd.DataFrame([row])], ignore_index=True)
     else:

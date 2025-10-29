@@ -14,40 +14,45 @@ class MidNet(nn.Module):
             param.requires_grad = False
         resnet_feat = self.resnet.get_classifier().in_features
         self.resnet.fc = nn.Identity()
+        self.resnet_proj = nn.Sequential(
+            nn.Linear(resnet_feat, 512),
+            nn.ReLU(),
+            nn.Dropout(dropout),
+            nn.Linear(512, 256))
 
         self.vit = timm.create_model('vit_base_patch16_224', pretrained=True)
         for param in self.vit.parameters():
             param.requires_grad = False
         vit_feat = self.vit.head.in_features
         self.vit.head = nn.Identity()
-    
-        self.resnet_proj = nn.Linear(resnet_feat, 256)
-        self.vit_proj = nn.Linear(vit_feat, 256)
+        self.vit_proj = nn.Sequential(
+            nn.Linear(vit_feat, 512),
+            nn.ReLU(),
+            nn.Dropout(dropout),
+            nn.Linear(512, 256))
 
         self.classifier = nn.Sequential(
             nn.Linear(512, 256),
             nn.ReLU(),
             nn.Dropout(dropout),
-            nn.Linear(256, n_classes)
-        )
+            nn.Linear(256, n_classes))
+        
+        self.resnet_kd_head = nn.Linear(256, n_classes)
+        self.vit_kd_head = nn.Linear(256, n_classes)
     
     def forward(self, x, kd=False):
-        resnet_feat = self.resnet(x)
-        vit_feat = self.vit(x)
-
-        resnet_feat = self.resnet_proj(resnet_feat)
-        vit_feat = self.vit_proj(vit_feat)
-
-        resnet_feat = F.normalize(resnet_feat, dim=1)
-        vit_feat = F.normalize(vit_feat, dim=1)
+        resnet_feat = self.resnet_proj(self.resnet(x))  # 256次元
+        vit_feat = self.vit_proj(self.vit(x))           # 256次元
 
         fused = torch.cat([resnet_feat, vit_feat], dim=1)
         output = self.classifier(fused)
 
         if kd:
+            resnet_feat = F.normalize(resnet_feat, dim=1)
+            vit_feat = F.normalize(vit_feat, dim=1)
             T = self.temperature
-            resnet_logits = resnet_feat / T
-            vit_logits = vit_feat / T
+            resnet_logits = self.resnet_kd_head(resnet_feat) / T
+            vit_logits = self.vit_kd_head(vit_feat) / T
             kl_loss = (
                 F.kl_div(F.log_softmax(resnet_logits, dim=1),
                          F.softmax(vit_logits, dim=1),

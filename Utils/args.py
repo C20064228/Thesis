@@ -2,6 +2,8 @@ import argparse
 
 def get_args():
     parser = argparse.ArgumentParser('Multimodal Classification')
+    parser.add_argument('--diffusion', default=False, type=bool)
+    parser.add_argument('--few_classes', default=['LI', 'LIIB', 'SIIIA', 'SVB', 'SVC', 'mix-Al'], type=str, nargs='+')
     parser.add_argument('--size', default=224, type=int)
     parser.add_argument('--splits',default=5,type=int)
     parser.add_argument('--epochs',default=20,type=int)
