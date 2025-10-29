@@ -64,7 +64,7 @@ def confusion(args, labels, preds, classes, output_dir):
         for j in range(i + 1, n_classes):
             mutual_misclassification[f'{classes[i]} - {classes[j]}'] = cm[i, j] + cm[j, i]
     df = pd.DataFrame(list(mutual_misclassification.items()), columns=['Label Pair', 'Mutual Misclassification'])
-    df_sorted = df.sort_values('Mutual Classification', ascending=False).head(10)
+    df_sorted = df.sort_values('Mutual Misclassification', ascending=False).head(10)
 
     n_labels = df_sorted['Label Pair'].nunique()
     cmap = plt.colormaps.get_cmap('Reds_r').resampled(n_labels)
