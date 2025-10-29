@@ -78,7 +78,7 @@ def summarize_result(args, loss, acc, f1, kappa):
         df.to_csv('Output/Results.csv', index=False)
 
     view_order = ['Top', 'Side', 'Fusion']
-    model_order = ['ResNet18', 'ViT', 'HCTNet', 'MidNet']
+    model_order = ['ResNet50', 'ViT', 'HCTNet', 'MidNet']
     df['View'] = pd.Categorical(df['View'], categories=view_order, ordered=True)
     df['Model'] = pd.Categorical(df['Model'], categories=model_order, ordered=True)
     df = df.sort_values(['View', 'Model']).reset_index(drop=True)

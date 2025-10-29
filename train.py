@@ -22,8 +22,10 @@ from Utils.seed import get_seed
 from Utils.args import get_args
 from Utils.eval_func import eval_history, confusion, summarize_result
 
-from Models.ResNet18 import *
+from Models.ResNet50 import *
 from Models.ViT import *
+from Models.HCTNet import *
+from Models.MidNet import *
 
 for name in logging.root.manager.loggerDict:
     if "huggingface" in name or "timm" in name:
@@ -34,12 +36,14 @@ def train(args, output_dir):
         n_classes = len(classes)
         if args.view in ['Top', 'Side']:
             model_dict = {
-                'ResNet18': ResNet18,
-                'ViT': ViT
+                'ResNet50': ResNet50,
+                'ViT': ViT,
+                'HCTNet': MidNet,
+                'MidNet': MidNet
             }
         else:
             model_dict = {
-                'ResNet18': ResNet18_F,
+                'ResNet50': ResNet50_F,
                 'ViT': ViT_F,
             }
         model_class = model_dict.get(args.model)
@@ -52,14 +56,15 @@ def train(args, output_dir):
     def get_transform(train):
         if train:
             transform = transforms.Compose([
-                transforms.Resize((args.size, args.size)),
-                transforms.Normalize(0.5, 0.5),
-                transforms.RandomErasing(p=0.2, scale=(0.02, 0.20), ratio=(0.5, 2.0), value=0, inplace=False)
+                transforms.RandomResizedCrop(args.size, scale=(0.9, 1.0)),
+                transforms.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.05, hue=0.02),
+                transforms.RandomAffine(degrees=0, translate=(0.05, 0.05), shear=(-5, 5)),
+                transforms.RandomErasing(p=0.1, scale=(0.005, 0.05), ratio=(0.3, 3.3)),
+                transforms.Normalize([0.5]*3, [0.5]*3)
                 ])
         else:
             transform = transforms.Compose([
-                transforms.Resize((args.size, args.size)),
-                transforms.Normalize(0.5, 0.5)
+                transforms.Normalize([0.5]*3, [0.5]*3)
                 ])
         return transform
 
@@ -117,8 +122,13 @@ def train(args, output_dir):
                         inputs = (imgs.to(device), )
                         labels = labels.to(device)
                         optimizer.zero_grad()
-                        outputs = model(*inputs)
-                        loss = criterion(outputs, labels)
+                        if args.model == 'MidNet':
+                            outputs, kd_loss = model(*inputs, kd=True)
+                            ce_loss = criterion(outputs, labels)
+                            loss = ce_loss + kd_loss
+                        else:
+                            outputs = model(*inputs)
+                            loss = criterion(outputs, labels)
                         loss.backward()
                         optimizer.step()
 
@@ -132,9 +142,13 @@ def train(args, output_dir):
                         for imgs, labels in tqdm(loaders[fold]['Test'], desc=f'{"Test":<10}', bar_format=args.format, ascii=args.ascii, leave=False):
                             inputs = (imgs.to(device), )
                             labels = labels.to(device)
-                            outputs = model(*inputs)
-                            loss = criterion(outputs, labels)
-
+                            if args.model == 'MidNet':
+                                outputs, kd_loss = model(*inputs, kd=True)
+                                ce_loss = criterion(outputs, labels)
+                                loss = ce_loss + kd_loss
+                            else:
+                                outputs = model(*inputs)
+                                loss = criterion(outputs, labels)
                             test_loss += loss.item()
                             predicted = outputs.argmax(dim=1)
                             n_test += labels.size(0)

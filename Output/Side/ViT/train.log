@@ -1,0 +1,105 @@
+[Fold : 1]
+[ 1/20] (Train) Loss=0.0460 Acc=0.7328 (Test) Loss=0.0378 Acc=0.8661 F1=0.6346 Kappa=0.8113
+[ 2/20] (Train) Loss=0.0349 Acc=0.8799 (Test) Loss=0.0358 Acc=0.8923 F1=0.6987 Kappa=0.8490
+[ 3/20] (Train) Loss=0.0333 Acc=0.9010 (Test) Loss=0.0353 Acc=0.9025 F1=0.7564 Kappa=0.8643
+[ 4/20] (Train) Loss=0.0319 Acc=0.9181 (Test) Loss=0.0346 Acc=0.9068 F1=0.7469 Kappa=0.8697
+[ 5/20] (Train) Loss=0.0313 Acc=0.9279 (Test) Loss=0.0344 Acc=0.9127 F1=0.7630 Kappa=0.8780
+[ 6/20] (Train) Loss=0.0309 Acc=0.9301 (Test) Loss=0.0345 Acc=0.9054 F1=0.7695 Kappa=0.8687
+[ 7/20] (Train) Loss=0.0303 Acc=0.9396 (Test) Loss=0.0335 Acc=0.9229 F1=0.8028 Kappa=0.8927
+[ 8/20] (Train) Loss=0.0301 Acc=0.9392 (Test) Loss=0.0338 Acc=0.9301 F1=0.8024 Kappa=0.9033
+[ 9/20] (Train) Loss=0.0296 Acc=0.9439 (Test) Loss=0.0335 Acc=0.9141 F1=0.8269 Kappa=0.8802
+[10/20] (Train) Loss=0.0296 Acc=0.9454 (Test) Loss=0.0335 Acc=0.9287 F1=0.7969 Kappa=0.9013
+[11/20] (Train) Loss=0.0294 Acc=0.9472 (Test) Loss=0.0336 Acc=0.9127 F1=0.7466 Kappa=0.8781
+[12/20] (Train) Loss=0.0291 Acc=0.9541 (Test) Loss=0.0333 Acc=0.9301 F1=0.8454 Kappa=0.9033
+[13/20] (Train) Loss=0.0291 Acc=0.9519 (Test) Loss=0.0333 Acc=0.9258 F1=0.8487 Kappa=0.8972
+[14/20] (Train) Loss=0.0287 Acc=0.9607 (Test) Loss=0.0331 Acc=0.9272 F1=0.8308 Kappa=0.8990
+[15/20] (Train) Loss=0.0291 Acc=0.9509 (Test) Loss=0.0336 Acc=0.9229 F1=0.8430 Kappa=0.8935
+[16/20] (Train) Loss=0.0287 Acc=0.9556 (Test) Loss=0.0329 Acc=0.9360 F1=0.8533 Kappa=0.9112
+[17/20] (Train) Loss=0.0286 Acc=0.9643 (Test) Loss=0.0329 Acc=0.9316 F1=0.8461 Kappa=0.9050
+[18/20] (Train) Loss=0.0285 Acc=0.9585 (Test) Loss=0.0329 Acc=0.9345 F1=0.8535 Kappa=0.9091
+[19/20] (Train) Loss=0.0286 Acc=0.9592 (Test) Loss=0.0332 Acc=0.9243 F1=0.8380 Kappa=0.8946
+[20/20] (Train) Loss=0.0284 Acc=0.9618 (Test) Loss=0.0328 Acc=0.9287 F1=0.8431 Kappa=0.9009
+[Fold : 2]
+[ 1/20] (Train) Loss=0.0450 Acc=0.7383 (Test) Loss=0.0388 Acc=0.8413 F1=0.7699 Kappa=0.7850
+[ 2/20] (Train) Loss=0.0344 Acc=0.8791 (Test) Loss=0.0359 Acc=0.8792 F1=0.8559 Kappa=0.8338
+[ 3/20] (Train) Loss=0.0329 Acc=0.9032 (Test) Loss=0.0356 Acc=0.8806 F1=0.8654 Kappa=0.8367
+[ 4/20] (Train) Loss=0.0319 Acc=0.9192 (Test) Loss=0.0357 Acc=0.8792 F1=0.8546 Kappa=0.8353
+[ 5/20] (Train) Loss=0.0309 Acc=0.9268 (Test) Loss=0.0349 Acc=0.9010 F1=0.8415 Kappa=0.8620
+[ 6/20] (Train) Loss=0.0304 Acc=0.9367 (Test) Loss=0.0338 Acc=0.9098 F1=0.8678 Kappa=0.8749
+[ 7/20] (Train) Loss=0.0301 Acc=0.9428 (Test) Loss=0.0336 Acc=0.9098 F1=0.8784 Kappa=0.8742
+[ 8/20] (Train) Loss=0.0297 Acc=0.9465 (Test) Loss=0.0339 Acc=0.9112 F1=0.8959 Kappa=0.8771
+[ 9/20] (Train) Loss=0.0300 Acc=0.9403 (Test) Loss=0.0344 Acc=0.9039 F1=0.8706 Kappa=0.8679
+[10/20] (Train) Loss=0.0294 Acc=0.9490 (Test) Loss=0.0333 Acc=0.9098 F1=0.8928 Kappa=0.8747
+[11/20] (Train) Loss=0.0291 Acc=0.9560 (Test) Loss=0.0336 Acc=0.9185 F1=0.8919 Kappa=0.8869
+[12/20] (Train) Loss=0.0290 Acc=0.9552 (Test) Loss=0.0333 Acc=0.9068 F1=0.8131 Kappa=0.8693
+[13/20] (Train) Loss=0.0288 Acc=0.9592 (Test) Loss=0.0334 Acc=0.9229 F1=0.9012 Kappa=0.8936
+[14/20] (Train) Loss=0.0288 Acc=0.9570 (Test) Loss=0.0339 Acc=0.9039 F1=0.8080 Kappa=0.8670
+[15/20] (Train) Loss=0.0286 Acc=0.9614 (Test) Loss=0.0330 Acc=0.9141 F1=0.8989 Kappa=0.8819
+[16/20] (Train) Loss=0.0283 Acc=0.9632 (Test) Loss=0.0330 Acc=0.9170 F1=0.8972 Kappa=0.8843
+[17/20] (Train) Loss=0.0287 Acc=0.9614 (Test) Loss=0.0330 Acc=0.9156 F1=0.8730 Kappa=0.8830
+[18/20] (Train) Loss=0.0281 Acc=0.9647 (Test) Loss=0.0328 Acc=0.9214 F1=0.8849 Kappa=0.8904
+[19/20] (Train) Loss=0.0281 Acc=0.9665 (Test) Loss=0.0328 Acc=0.9214 F1=0.8742 Kappa=0.8904
+[20/20] (Train) Loss=0.0284 Acc=0.9618 (Test) Loss=0.0326 Acc=0.9156 F1=0.8790 Kappa=0.8821
+[Fold : 3]
+[ 1/20] (Train) Loss=0.0442 Acc=0.7637 (Test) Loss=0.0383 Acc=0.8515 F1=0.7768 Kappa=0.7953
+[ 2/20] (Train) Loss=0.0350 Acc=0.8795 (Test) Loss=0.0362 Acc=0.8879 F1=0.7688 Kappa=0.8463
+[ 3/20] (Train) Loss=0.0331 Acc=0.8988 (Test) Loss=0.0348 Acc=0.8923 F1=0.7542 Kappa=0.8516
+[ 4/20] (Train) Loss=0.0317 Acc=0.9261 (Test) Loss=0.0341 Acc=0.9025 F1=0.8062 Kappa=0.8658
+[ 5/20] (Train) Loss=0.0315 Acc=0.9232 (Test) Loss=0.0341 Acc=0.8967 F1=0.7930 Kappa=0.8573
+[ 6/20] (Train) Loss=0.0307 Acc=0.9297 (Test) Loss=0.0345 Acc=0.8908 F1=0.8000 Kappa=0.8494
+[ 7/20] (Train) Loss=0.0304 Acc=0.9374 (Test) Loss=0.0334 Acc=0.9112 F1=0.8140 Kappa=0.8771
+[ 8/20] (Train) Loss=0.0303 Acc=0.9352 (Test) Loss=0.0333 Acc=0.9083 F1=0.7967 Kappa=0.8730
+[ 9/20] (Train) Loss=0.0298 Acc=0.9428 (Test) Loss=0.0330 Acc=0.9127 F1=0.8166 Kappa=0.8800
+[10/20] (Train) Loss=0.0295 Acc=0.9487 (Test) Loss=0.0333 Acc=0.9141 F1=0.8630 Kappa=0.8828
+[11/20] (Train) Loss=0.0296 Acc=0.9432 (Test) Loss=0.0327 Acc=0.9156 F1=0.8185 Kappa=0.8839
+[12/20] (Train) Loss=0.0292 Acc=0.9490 (Test) Loss=0.0329 Acc=0.9185 F1=0.8680 Kappa=0.8880
+[13/20] (Train) Loss=0.0290 Acc=0.9556 (Test) Loss=0.0325 Acc=0.9170 F1=0.8221 Kappa=0.8858
+[14/20] (Train) Loss=0.0291 Acc=0.9505 (Test) Loss=0.0329 Acc=0.9156 F1=0.8157 Kappa=0.8834
+[15/20] (Train) Loss=0.0289 Acc=0.9589 (Test) Loss=0.0327 Acc=0.9156 F1=0.8205 Kappa=0.8837
+[16/20] (Train) Loss=0.0288 Acc=0.9578 (Test) Loss=0.0324 Acc=0.9243 F1=0.8283 Kappa=0.8957
+[17/20] (Train) Loss=0.0286 Acc=0.9563 (Test) Loss=0.0323 Acc=0.9156 F1=0.8196 Kappa=0.8834
+[18/20] (Train) Loss=0.0287 Acc=0.9610 (Test) Loss=0.0323 Acc=0.9229 F1=0.8357 Kappa=0.8935
+[19/20] (Train) Loss=0.0287 Acc=0.9607 (Test) Loss=0.0323 Acc=0.9127 F1=0.8156 Kappa=0.8792
+[20/20] (Train) Loss=0.0285 Acc=0.9629 (Test) Loss=0.0323 Acc=0.9243 F1=0.8288 Kappa=0.8957
+[Fold : 4]
+[ 1/20] (Train) Loss=0.0457 Acc=0.7343 (Test) Loss=0.0384 Acc=0.8544 F1=0.7344 Kappa=0.8011
+[ 2/20] (Train) Loss=0.0349 Acc=0.8802 (Test) Loss=0.0339 Acc=0.9243 F1=0.8815 Kappa=0.8951
+[ 3/20] (Train) Loss=0.0333 Acc=0.8981 (Test) Loss=0.0335 Acc=0.9272 F1=0.8865 Kappa=0.9000
+[ 4/20] (Train) Loss=0.0320 Acc=0.9195 (Test) Loss=0.0339 Acc=0.9170 F1=0.8917 Kappa=0.8850
+[ 5/20] (Train) Loss=0.0316 Acc=0.9272 (Test) Loss=0.0324 Acc=0.9403 F1=0.9193 Kappa=0.9175
+[ 6/20] (Train) Loss=0.0308 Acc=0.9341 (Test) Loss=0.0323 Acc=0.9374 F1=0.8965 Kappa=0.9137
+[ 7/20] (Train) Loss=0.0306 Acc=0.9341 (Test) Loss=0.0317 Acc=0.9389 F1=0.8995 Kappa=0.9155
+[ 8/20] (Train) Loss=0.0303 Acc=0.9345 (Test) Loss=0.0324 Acc=0.9316 F1=0.8905 Kappa=0.9061
+[ 9/20] (Train) Loss=0.0303 Acc=0.9370 (Test) Loss=0.0319 Acc=0.9345 F1=0.9294 Kappa=0.9094
+[10/20] (Train) Loss=0.0299 Acc=0.9425 (Test) Loss=0.0315 Acc=0.9360 F1=0.9307 Kappa=0.9112
+[11/20] (Train) Loss=0.0293 Acc=0.9505 (Test) Loss=0.0313 Acc=0.9418 F1=0.9366 Kappa=0.9193
+[12/20] (Train) Loss=0.0294 Acc=0.9498 (Test) Loss=0.0321 Acc=0.9330 F1=0.9129 Kappa=0.9082
+[13/20] (Train) Loss=0.0291 Acc=0.9570 (Test) Loss=0.0315 Acc=0.9360 F1=0.9363 Kappa=0.9117
+[14/20] (Train) Loss=0.0290 Acc=0.9549 (Test) Loss=0.0313 Acc=0.9345 F1=0.8943 Kappa=0.9091
+[15/20] (Train) Loss=0.0290 Acc=0.9509 (Test) Loss=0.0319 Acc=0.9374 F1=0.9084 Kappa=0.9140
+[16/20] (Train) Loss=0.0288 Acc=0.9552 (Test) Loss=0.0310 Acc=0.9345 F1=0.9198 Kappa=0.9095
+[17/20] (Train) Loss=0.0287 Acc=0.9556 (Test) Loss=0.0312 Acc=0.9374 F1=0.9097 Kappa=0.9135
+[18/20] (Train) Loss=0.0286 Acc=0.9625 (Test) Loss=0.0315 Acc=0.9330 F1=0.9069 Kappa=0.9077
+[19/20] (Train) Loss=0.0286 Acc=0.9570 (Test) Loss=0.0309 Acc=0.9418 F1=0.9239 Kappa=0.9194
+[20/20] (Train) Loss=0.0287 Acc=0.9570 (Test) Loss=0.0314 Acc=0.9374 F1=0.9140 Kappa=0.9140
+[Fold : 5]
+[ 1/20] (Train) Loss=0.0450 Acc=0.7533 (Test) Loss=0.0379 Acc=0.8659 F1=0.6834 Kappa=0.8168
+[ 2/20] (Train) Loss=0.0350 Acc=0.8825 (Test) Loss=0.0345 Acc=0.9155 F1=0.7500 Kappa=0.8828
+[ 3/20] (Train) Loss=0.0327 Acc=0.9068 (Test) Loss=0.0336 Acc=0.9198 F1=0.7949 Kappa=0.8897
+[ 4/20] (Train) Loss=0.0323 Acc=0.9163 (Test) Loss=0.0347 Acc=0.9052 F1=0.8103 Kappa=0.8712
+[ 5/20] (Train) Loss=0.0317 Acc=0.9221 (Test) Loss=0.0338 Acc=0.9125 F1=0.7914 Kappa=0.8804
+[ 6/20] (Train) Loss=0.0309 Acc=0.9338 (Test) Loss=0.0326 Acc=0.9329 F1=0.7663 Kappa=0.9068
+[ 7/20] (Train) Loss=0.0306 Acc=0.9309 (Test) Loss=0.0328 Acc=0.9257 F1=0.7724 Kappa=0.8969
+[ 8/20] (Train) Loss=0.0302 Acc=0.9403 (Test) Loss=0.0326 Acc=0.9271 F1=0.7767 Kappa=0.8992
+[ 9/20] (Train) Loss=0.0299 Acc=0.9443 (Test) Loss=0.0323 Acc=0.9402 F1=0.7862 Kappa=0.9174
+[10/20] (Train) Loss=0.0297 Acc=0.9451 (Test) Loss=0.0324 Acc=0.9227 F1=0.7541 Kappa=0.8921
+[11/20] (Train) Loss=0.0292 Acc=0.9509 (Test) Loss=0.0325 Acc=0.9315 F1=0.7940 Kappa=0.9053
+[12/20] (Train) Loss=0.0292 Acc=0.9552 (Test) Loss=0.0324 Acc=0.9286 F1=0.7771 Kappa=0.9014
+[13/20] (Train) Loss=0.0293 Acc=0.9516 (Test) Loss=0.0328 Acc=0.9257 F1=0.7727 Kappa=0.8979
+[14/20] (Train) Loss=0.0291 Acc=0.9567 (Test) Loss=0.0323 Acc=0.9373 F1=0.7871 Kappa=0.9129
+[15/20] (Train) Loss=0.0289 Acc=0.9541 (Test) Loss=0.0320 Acc=0.9373 F1=0.7812 Kappa=0.9130
+[16/20] (Train) Loss=0.0287 Acc=0.9556 (Test) Loss=0.0320 Acc=0.9359 F1=0.7804 Kappa=0.9112
+[17/20] (Train) Loss=0.0287 Acc=0.9629 (Test) Loss=0.0326 Acc=0.9271 F1=0.7818 Kappa=0.8993
+[18/20] (Train) Loss=0.0285 Acc=0.9571 (Test) Loss=0.0323 Acc=0.9286 F1=0.7761 Kappa=0.9015
+[19/20] (Train) Loss=0.0286 Acc=0.9578 (Test) Loss=0.0322 Acc=0.9344 F1=0.7803 Kappa=0.9092
+[20/20] (Train) Loss=0.0285 Acc=0.9651 (Test) Loss=0.0319 Acc=0.9344 F1=0.7951 Kappa=0.9091
