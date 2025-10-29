@@ -95,8 +95,7 @@ def train(args, output_dir):
     all_preds, all_labels = [], []
 
     histories = {}
-    n_fold = 1
-    with tqdm(total=args.splits, desc=f'{f"Fold  {n_fold}":<10}', bar_format=args.format, ascii=args.ascii) as pbar:
+    with tqdm(total=args.splits, desc=f'{f"Fold  X":<10}', bar_format=args.format, ascii=args.ascii) as pbar:
         for fold in loaders:
             model = choose_model(args, classes)
             model.to(device)
@@ -104,9 +103,8 @@ def train(args, output_dir):
             optimizer = optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
             scheduler = StepLR(optimizer, step_size=5, gamma=0.8)
             history = np.zeros((0,5))
-            logging.info(f'[Fold : {n_fold}]')
-            n_epoch =1
-            with tqdm(total=args.epochs, desc=f'{f"Epoch {n_epoch}":<10}', bar_format=args.format, ascii=args.ascii, leave=False) as qbar:
+            logging.info(f'[Fold : {fold + 1}]')
+            with tqdm(total=args.epochs, desc=f'{f"Epoch X":<10}', bar_format=args.format, ascii=args.ascii, leave=False) as qbar:
                 for epoch in range(1, args.epochs + 1):
                     train_loss = test_loss = 0.0
                     train_acc = test_acc = 0.0
@@ -154,14 +152,13 @@ def train(args, output_dir):
                     kappa = cohen_kappa_score(eval_labels, eval_preds)
                     item = np.array([epoch, train_loss, test_loss, train_acc, test_acc])
                     history = np.vstack((history, item))
-                    logging.info(f"[{epoch:>2}:{args.epochs:>2}] (Train) Loss={train_loss:.4f} Acc={train_acc:.4f} (Test) Loss={test_loss:.4f} Acc={test_acc:.4f} F1={macro_f1:.4f} Kappa={kappa:.4f}")
+                    logging.info(f"[{epoch:>2}/{args.epochs:>2}] (Train) Loss={train_loss:.4f} Acc={train_acc:.4f} (Test) Loss={test_loss:.4f} Acc={test_acc:.4f} F1={macro_f1:.4f} Kappa={kappa:.4f}")
                     scheduler.step()
                     qbar.set_postfix(OrderedDict([
-                        ('Train', f'{train_acc:.4f}'),
-                        ('Test', f'{test_acc:.4f}')
+                        ('Train', f'{train_loss:.4f}'),
+                        ('Test', f'{test_loss:.4f}')
                     ]))
                     qbar.update()
-                    n_epoch += 1
             fold_loss.append(test_loss)
             fold_acc.append(test_acc)
             fold_f1.append(macro_f1)
@@ -174,8 +171,6 @@ def train(args, output_dir):
                 ('Acc', f'{np.mean(fold_acc):.4f}')
             ]))
             pbar.update()
-            n_fold += 1
-            eval_history(args, histories, output_dir)
 
     eval_history(args, histories, output_dir)
     confusion(args, all_labels, all_preds, classes, output_dir)

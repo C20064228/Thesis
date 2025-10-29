@@ -8,7 +8,7 @@ from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 def eval_history(args, histories, output_dir):
     col = ['tab:blue', 'tab:orange', 'tab:green', 'tab:red', 'tab:purple']
     unit = args.epochs / 10
-    fig, ax = plt.subplots(1, 2, figsize=(15, 6))
+    fig, ax = plt.subplots(1, 2, figsize=(20, 6))
     for i, (fold, record) in enumerate(histories.items(), start=0):
         history = record['Fold']
         ax[0].plot(history[:, 0], history[:, 1], label=f'Fold : {fold+1}', color=col[i % len(col)])
