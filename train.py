@@ -60,7 +60,7 @@ def train(args, output_dir):
             transform = transforms.Compose([
                 transforms.RandomResizedCrop(args.size, scale=(0.9, 1.0)),
                 transforms.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.05, hue=0.02),
-                transforms.RandomAffine(degrees=0, translate=(0.05, 0.05), shear=(-5, 5)),
+                #transforms.RandomAffine(degrees=0, translate=(0.05, 0.05), shear=(-5, 5)),
                 transforms.RandomErasing(p=0.1, scale=(0.005, 0.05), ratio=(0.3, 3.3)),
                 transforms.Normalize([0.5]*3, [0.5]*3)
                 ])
@@ -125,7 +125,7 @@ def train(args, output_dir):
             criterion = nn.CrossEntropyLoss(weight=class_weights, label_smoothing=0.1)
             optimizer = optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
             #scheduler = StepLR(optimizer, step_size=5, gamma=0.8)
-            scheduler = CosineAnnealingLR(optimizer, T_max=20, eta_min=1e-5)
+            scheduler = CosineAnnealingLR(optimizer, T_max=args.epochs, eta_min=1e-5)
             history = np.zeros((0,5))
             logging.info(f'[Fold : {fold + 1}]')
             with tqdm(total=args.epochs, desc=f'{f"Epoch X":<10}', bar_format=args.format, ascii=args.ascii, leave=False) as qbar:

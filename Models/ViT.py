@@ -7,7 +7,7 @@ class ViT(nn.Module):
         super().__init__()
         self.model = timm.create_model('vit_base_patch16_224', pretrained=True)
         for param in self.model.parameters():
-            param.requires_grad = False
+            param.requires_grad = True
         in_features = self.model.head.in_features
         self.model.head = nn.Linear(in_features, n_classes)
 
