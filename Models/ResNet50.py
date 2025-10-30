@@ -7,7 +7,7 @@ class ResNet50(nn.Module):
         super().__init__()
         self.model = timm.create_model('resnet50d', pretrained=True)
         for param in self.model.parameters():
-            param.requires_grad = False
+            param.requires_grad = True
         in_features = self.model.get_classifier().in_features
         self.model.fc = nn.Linear(in_features, n_classes)
 
