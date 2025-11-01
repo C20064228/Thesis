@@ -6,27 +6,21 @@ import time
 import logging
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-import matplotlib.lines as mlines
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from collections import OrderedDict
 from torchvision import transforms
-from torchvision.transforms import ToPILImage
 from torch.utils.data import DataLoader
-from torch.optim.lr_scheduler import StepLR, CosineAnnealingLR, OneCycleLR
-from sklearn.model_selection import StratifiedKFold, train_test_split
+from torch.optim.lr_scheduler import CosineAnnealingLR
+from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score, cohen_kappa_score
 from tqdm import tqdm
 from Utils.Image import OriginalDataset
 from Utils.seed import get_seed
 from Utils.args import get_args
-from Utils.eval_func import eval_history, confusion, summarize_result
+from Utils.eval_func import eval_history
 
-from Models.ResNet50 import *
-from Models.ViT import *
-from Models.HCTNet import *
 from Models.MidNet import *
 
 for name in logging.root.manager.loggerDict:
@@ -34,20 +28,6 @@ for name in logging.root.manager.loggerDict:
         logging.getLogger(name).setLevel(logging.ERROR)
 
 def train(args, output_dir):
-    def choose_model(args, classes):
-        n_classes = len(classes)
-        if args.view in ['Top', 'Side']:
-            model_dict = {
-                'MidNet': MidNet
-            }
-        else:
-            model_dict = {
-                'ResNet50': ResNet50_F,
-                'ViT': ViT_F,
-            }
-        model_class = model_dict.get(args.model)
-        model = model_class(n_classes)
-        return model
     def make_dataset(idx, imgs, labels):
         selected_imgs = [imgs[i] for i in idx]
         selected_labels = [labels[i] for i in idx]
@@ -76,9 +56,7 @@ def train(args, output_dir):
     imgs, labels = df[args.view], df['Label']
 
     np_labels = labels.numpy()
-    train_idx, test_idx = train_test_split(range(len(labels)), test_size=0.2, random_state=42, stratify=np_labels)
-    df_train, label_train = make_dataset(train_idx, imgs, labels)
-    df_test, label_test = make_dataset(test_idx, imgs, labels)
+    df_train, df_test, label_train, label_test = train_test_split(imgs, labels, test_size=0.2, random_state=42, stratify=np_labels)
     train_dataset = OriginalDataset(df_train, label_train, transform=get_transform(True))
     test_dataset = OriginalDataset(df_test, label_test, transform=get_transform(False))
     train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
@@ -93,21 +71,17 @@ def train(args, output_dir):
     log_path = os.path.join(output_dir, 'train.log')
     logging.basicConfig(filename=log_path, level=logging.INFO, format='%(message)s', filemode='w')
 
-    fold_loss, fold_acc, fold_f1, fold_kappa = [], [], [], []
-    all_preds, all_labels = [], []
-    all_times = []
-
+    alpha_list = [0.1, 0.3, 0.5, 0.7, 0.9]
     histories = {}
-    with tqdm(total=args.splits, desc=f'{f"Fold  X":<10}', bar_format=args.format, ascii=args.ascii) as pbar:
-        for fold in loaders:
-            model = choose_model(args, classes)
-            model.to(device)
+    with tqdm(total=len(alpha_list), desc=f'{f"Test alpha":<10}', bar_format=args.format, ascii=args.ascii) as pbar:
+        for alpha in alpha_list:
+            n_alpha = 0
+            model = MidNet(n_classes=len(classes)).to(device)
             criterion = nn.CrossEntropyLoss(weight=class_weights, label_smoothing=0.1)
             optimizer = optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
-            #scheduler = StepLR(optimizer, step_size=5, gamma=0.8)
             scheduler = CosineAnnealingLR(optimizer, T_max=args.epochs, eta_min=1e-5)
             history = np.zeros((0,5))
-            logging.info(f'[Fold : {fold + 1}]')
+            logging.info(f'[alpha : {alpha}]')
             with tqdm(total=args.epochs, desc=f'{f"Epoch X":<10}', bar_format=args.format, ascii=args.ascii, leave=False) as qbar:
                 for epoch in range(1, args.epochs + 1):
                     train_loss = test_loss = 0.0
@@ -115,17 +89,13 @@ def train(args, output_dir):
                     n_train = n_test = 0
                     Preds, Labels = [], []
                     model.train()
-                    for imgs, labels in tqdm(loaders[fold]['Train'], desc=f'{"Train":<10}', bar_format=args.format, ascii=args.ascii, leave=False):
+                    for imgs, labels in tqdm(train_loader, desc=f'{"Train":<10}', bar_format=args.format, ascii=args.ascii, leave=False):
                         inputs = (imgs.to(device), )
                         labels = labels.to(device)
                         optimizer.zero_grad()
-                        if args.model == 'MidNet':
-                            outputs, kd_loss = model(*inputs, kd=True)
-                            ce_loss = criterion(outputs, labels)
-                            loss = ce_loss + kd_loss
-                        else:
-                            outputs = model(*inputs)
-                            loss = criterion(outputs, labels)
+                        outputs, kd_loss = model(*inputs, kd=True)
+                        ce_loss = criterion(outputs, labels)
+                        loss = alpha * ce_loss + (1 - alpha) * kd_loss
                         loss.backward()
                         optimizer.step()
 
@@ -136,25 +106,16 @@ def train(args, output_dir):
 
                     model.eval()
                     with torch.no_grad():
-                        for imgs, labels in tqdm(loaders[fold]['Test'], desc=f'{"Test":<10}', bar_format=args.format, ascii=args.ascii, leave=False):
+                        for imgs, labels in tqdm(test_loader, desc=f'{"Test":<10}', bar_format=args.format, ascii=args.ascii, leave=False):
                             inputs = (imgs.to(device), )
                             labels = labels.to(device)
-                            start_time = time.time()
-                            if args.model == 'MidNet':
-                                outputs, kd_loss = model(*inputs, kd=True)
-                                end_time = time.time()
-                                ce_loss = criterion(outputs, labels)
-                                loss = ce_loss + kd_loss
-                            else:
-                                outputs = model(*inputs)
-                                end_time = time.time()
-                                loss = criterion(outputs, labels)
+                            outputs, kd_loss = model(*inputs, kd=True)
+                            ce_loss = criterion(outputs, labels)
+                            loss = alpha * ce_loss + (1 - alpha) * kd_loss
                             test_loss += loss.item()
                             predicted = outputs.argmax(dim=1)
                             n_test += labels.size(0)
                             test_acc += (predicted == labels).sum().item()
-                            diff_time = end_time - start_time
-                            all_times.append(diff_time)
 
                             Preds.extend(predicted.cpu())
                             Labels.extend(labels.cpu())
@@ -177,27 +138,37 @@ def train(args, output_dir):
                         ('Test', f'{test_loss:.4f}')
                     ]))
                     qbar.update()
-            fold_loss.append(test_loss)
-            fold_acc.append(test_acc)
-            fold_f1.append(macro_f1)
-            fold_kappa.append(kappa)
-            all_labels.extend(Labels)
-            all_preds.extend(Preds)
-            histories[fold] = {'Fold': history}
-            pbar.set_postfix(OrderedDict([
-                ('Loss', f'{np.mean(fold_loss):.4f}'),
-                ('Acc', f'{np.mean(fold_acc):.4f}')
-            ]))
-            pbar.update()
+            histories[n_alpha] = {'alpha': history}
             eval_history(args, histories, output_dir)
 
-    eval_history(args, histories, output_dir)
-    confusion(args, all_labels, all_preds, classes, output_dir)
-    summarize_result(args, fold_loss, fold_acc, fold_f1, fold_kappa, all_times)
+            row = {
+                'Alpha': alpha,
+                'Loss': f'{test_loss:.4f}',
+                'Acc': f'{test_acc:.4f}',
+                'macro F1': f'{macro_f1:.4f}',
+                'Kappa': f'{kappa:.4f}',
+            }
+            if os.path.exists(f'{output_dir}/Comparison.csv'):
+                df = pd.read_csv(f'{output_dir}/Comparison.csv', dtype=str)
+                mask = (df['Alpha'] == alpha)
+                if mask.any():
+                    df.loc[mask, ['Loss', 'Acc', 'macro F1', 'Kappa']] = row['Loss'], row['Acc'], row['macro F1'], row['Kappa']
+                else:
+                    df = pd.concat([df, pd.DataFrame([row])], ignore_index=True)
+            else:
+                df = pd.DataFrame([row])
+                df.to_csv(f'{output_dir}/Comparison.csv', index=False)
+
+            alpha_order = [0.1, 0.3, 0.5, 0.7, 0.9]
+            df['Alpha'] = pd.Categorical(df['Alpha'], categories=alpha_order, ordered=True)
+            df = df.sort_values(['Alpha']).reset_index(drop=True)
+            df.to_csv(f'{output_dir}/Comparison.csv', index=False)
+
+            pbar.update()
 
 if __name__ == '__main__':
     args = get_args()
-    output_dir = f'Output/{args.view}/{args.model}'
+    output_dir = f'Output/{args.view}/{args.model}/alpha'
     if not os.path.exists(output_dir):
         os.makedirs(output_dir, exist_ok=True)
     print(f'[{args.view:^10}:{args.model:^10}]')

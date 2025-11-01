@@ -4,29 +4,30 @@ import torch.nn.functional as F
 import timm
 
 class MidNet(nn.Module):
-    def __init__(self, n_classes, dropout=0.3, temperature=4.0, alpha=0.5):
+    def __init__(self, n_classes, dropout=0.3, temperature=4.0):
         super().__init__()
         self.temperature = temperature
-        self.alpha = alpha
 
         self.resnet = timm.create_model('resnet50d', pretrained=True)
         for param in self.resnet.parameters():
-            param.requires_grad = False
+            param.requires_grad = True
         resnet_feat = self.resnet.get_classifier().in_features
         self.resnet.fc = nn.Identity()
         self.resnet_proj = nn.Sequential(
             nn.Linear(resnet_feat, 512),
             nn.ReLU(),
+            nn.Dropout(dropout),
             nn.Linear(512, 256))
 
         self.vit = timm.create_model('vit_base_patch16_224', pretrained=True)
         for param in self.vit.parameters():
-            param.requires_grad = False
+            param.requires_grad = True
         vit_feat = self.vit.head.in_features
         self.vit.head = nn.Identity()
         self.vit_proj = nn.Sequential(
             nn.Linear(vit_feat, 512),
             nn.ReLU(),
+            nn.Dropout(dropout),
             nn.Linear(512, 256))
 
         self.classifier = nn.Sequential(
@@ -59,6 +60,6 @@ class MidNet(nn.Module):
                          F.softmax(resnet_logits, dim=1),
                          reduction='batchmean')
             ) / 2.0
-            return output, kl_loss * (T ** 2) * self.alpha
+            return output, kl_loss * (T ** 2)
 
         return output
