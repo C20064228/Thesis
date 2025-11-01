@@ -2,7 +2,8 @@ import warnings
 warnings.simplefilter("ignore")
 
 import os
-import time
+import matplotlib.pyplot as plt
+import matplotlib.lines as mlines
 import logging
 import numpy as np
 import pandas as pd
@@ -71,11 +72,11 @@ def train(args, output_dir):
     log_path = os.path.join(output_dir, 'train.log')
     logging.basicConfig(filename=log_path, level=logging.INFO, format='%(message)s', filemode='w')
 
-    alpha_list = [0.1, 0.3, 0.5, 0.7, 0.9]
+    alpha_list = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
     histories = {}
-    with tqdm(total=len(alpha_list), desc=f'{f"Test alpha":<10}', bar_format=args.format, ascii=args.ascii) as pbar:
+    n_alpha = 0
+    with tqdm(total=len(alpha_list), desc=f'{f"alpha":<10}', bar_format=args.format, ascii=args.ascii) as pbar:
         for alpha in alpha_list:
-            n_alpha = 0
             model = MidNet(n_classes=len(classes)).to(device)
             criterion = nn.CrossEntropyLoss(weight=class_weights, label_smoothing=0.1)
             optimizer = optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
@@ -95,7 +96,7 @@ def train(args, output_dir):
                         optimizer.zero_grad()
                         outputs, kd_loss = model(*inputs, kd=True)
                         ce_loss = criterion(outputs, labels)
-                        loss = alpha * ce_loss + (1 - alpha) * kd_loss
+                        loss = ce_loss + alpha * kd_loss
                         loss.backward()
                         optimizer.step()
 
@@ -111,7 +112,7 @@ def train(args, output_dir):
                             labels = labels.to(device)
                             outputs, kd_loss = model(*inputs, kd=True)
                             ce_loss = criterion(outputs, labels)
-                            loss = alpha * ce_loss + (1 - alpha) * kd_loss
+                            loss = ce_loss + alpha * kd_loss
                             test_loss += loss.item()
                             predicted = outputs.argmax(dim=1)
                             n_test += labels.size(0)
@@ -139,30 +140,62 @@ def train(args, output_dir):
                     ]))
                     qbar.update()
             histories[n_alpha] = {'alpha': history}
-            eval_history(args, histories, output_dir)
+            n_alpha += 1
 
             row = {
-                'Alpha': alpha,
+                'Alpha': float(alpha),
                 'Loss': f'{test_loss:.4f}',
                 'Acc': f'{test_acc:.4f}',
                 'macro F1': f'{macro_f1:.4f}',
                 'Kappa': f'{kappa:.4f}',
             }
-            if os.path.exists(f'{output_dir}/Comparison.csv'):
-                df = pd.read_csv(f'{output_dir}/Comparison.csv', dtype=str)
+            filename = f'{output_dir}/Comparison.csv'
+            if os.path.exists(filename):
+                df = pd.read_csv(filename)
+                df['Alpha'] = df['Alpha'].astype(float)
                 mask = (df['Alpha'] == alpha)
                 if mask.any():
                     df.loc[mask, ['Loss', 'Acc', 'macro F1', 'Kappa']] = row['Loss'], row['Acc'], row['macro F1'], row['Kappa']
                 else:
-                    df = pd.concat([df, pd.DataFrame([row])], ignore_index=True)
+                    df = pd.concat([df, pd.DataFrame([row], columns=df.columns)], ignore_index=True)
             else:
                 df = pd.DataFrame([row])
-                df.to_csv(f'{output_dir}/Comparison.csv', index=False)
 
-            alpha_order = [0.1, 0.3, 0.5, 0.7, 0.9]
+            alpha_order = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
             df['Alpha'] = pd.Categorical(df['Alpha'], categories=alpha_order, ordered=True)
             df = df.sort_values(['Alpha']).reset_index(drop=True)
-            df.to_csv(f'{output_dir}/Comparison.csv', index=False)
+            df.to_csv(filename, index=False)
+
+            cmap = plt.get_cmap('tab10')
+            unit = args.epochs / 10
+            fig, ax = plt.subplots(1, 2, figsize=(20, 6))
+            for i, (n, record) in enumerate(histories.items(), start=0):
+                col = cmap(i % 10)
+                history = record['alpha']
+                ax[0].plot(history[:, 0], history[:, 1], label=rf'$\alpha$ = {(n + 1) / 10}', color=col)
+                ax[0].plot(history[:, 0], history[:, 2], color=col, linestyle=':')
+                ax[1].plot(history[:, 0], history[:, 3], label=rf'$\alpha$ = {(n + 1) / 10}', color=col)
+                ax[1].plot(history[:, 0], history[:, 4], color=col, linestyle=':')
+            ax[0].set_title('Loss Curve', fontsize=20)
+            ax[0].set_xlabel('Epochs', fontsize=14)
+            ax[0].set_ylabel('Loss', fontsize=14)
+            ax[0].set_xticks(np.arange(0, args.epochs + 1, unit))
+            ax[0].grid(alpha=0.7, linestyle=':')
+            ax[0].legend()
+            ax[1].set_title('Accuracy Curve', fontsize=20)
+            ax[1].set_xlabel('Epochs', fontsize=14)
+            ax[1].set_ylabel('Accuracy', fontsize=14)
+            ax[1].set_xticks(np.arange(0, args.epochs + 1, unit))
+            ax[1].grid(alpha=0.7, linestyle=':')
+            ax[1].legend()
+            train_line = mlines.Line2D([], [], color='black', label='Train', linestyle='-')
+            test_line = mlines.Line2D([], [], color='black', label='Test', linestyle=':')
+            fig.legend(handles=[train_line, test_line],
+                        loc='lower center', bbox_to_anchor=(0.5, -0.05),
+                        ncol=2, fontsize=12)
+            fig.subplots_adjust(bottom=0.1)
+            plt.savefig(os.path.join(output_dir, 'leaning_curve.png'), bbox_inches='tight')
+            plt.close()
 
             pbar.update()
 
