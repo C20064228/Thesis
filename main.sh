@@ -1,18 +1,10 @@
 python train.py \
 --view 'Top' \
---model 'ResNet50'
+--model 'MidNet'
 
 python train.py \
 --view 'Side' \
---model 'ResNet50'
-
-python train.py \
---view 'Top' \
---model 'ViT'
-
-python train.py \
---view 'Side' \
---model 'ViT'
+--model 'MidNet'
 
 git add .
 git commit -m 'Auto commit'

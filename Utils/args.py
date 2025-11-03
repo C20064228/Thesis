@@ -10,6 +10,7 @@ def get_args():
     parser.add_argument('--lr',default=1e-4,type=float)
     parser.add_argument('--weight_decay',default=1e-2,type=float)
     parser.add_argument('--batch_size',default=32,type=int)
+    parser.add_argument('--alpha', default=0.5, type=float)
     parser.add_argument('--view',default='Top',choices=['Top','Side','Fusion'],type = str)
     parser.add_argument('--model',default='ResNet50',choices = ['ResNet50','ViT','HCTNet','MidNet'],type = str)
     parser.add_argument('--format',default='{l_bar}{bar:60} | {n_fmt:>2} / {total_fmt:>2} [{elapsed} < {remaining} , {rate_fmt}] {postfix}',type = str)

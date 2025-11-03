@@ -142,7 +142,7 @@ def train(args, output_dir):
                         if args.model == 'MidNet':
                             outputs, kd_loss = model(*inputs, kd=True)
                             ce_loss = criterion(outputs, labels)
-                            loss = ce_loss + kd_loss
+                            loss = ce_loss + args.alpha * kd_loss
                         else:
                             outputs = model(*inputs)
                             loss = criterion(outputs, labels)
@@ -164,7 +164,7 @@ def train(args, output_dir):
                                 outputs, kd_loss = model(*inputs, kd=True)
                                 end_time = time.time()
                                 ce_loss = criterion(outputs, labels)
-                                loss = ce_loss + kd_loss
+                                loss = ce_loss + args.alpha * kd_loss
                             else:
                                 outputs = model(*inputs)
                                 end_time = time.time()
