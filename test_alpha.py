@@ -72,7 +72,7 @@ def train(args, output_dir):
     log_path = os.path.join(output_dir, 'train.log')
     logging.basicConfig(filename=log_path, level=logging.INFO, format='%(message)s', filemode='w')
 
-    alpha_list = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+    alpha_list = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
     histories = {}
     n_alpha = 0
     with tqdm(total=len(alpha_list), desc=f'{f"alpha":<10}', bar_format=args.format, ascii=args.ascii) as pbar:
