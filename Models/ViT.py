@@ -18,19 +18,20 @@ class ViT_F(nn.Module):
     def __init__(self, n_classes, dropout=0.3):
         super().__init__()
         self.backbones = nn.ModuleList([self._create_backbone() for _ in range(2)])
-        in_features = self._create_backbone().head.in_features
+        backbone = timm.create_model('vit_base_patch16_224', pretrained=True)
+        in_features = backbone.head.in_features
         self.classifier = nn.Sequential(
             nn.Linear(in_features * 2, 512),
             nn.ReLU(),
             nn.Dropout(dropout),
-            nn.Linear(n_classes)
+            nn.Linear(512, n_classes)
         )
 
     def _create_backbone(self):
         model = timm.create_model('vit_base_patch16_224', pretrained=True)
         for param in model.parameters():
             param.requires_grad = True
-        model.fc = nn.Identity()
+        model.head = nn.Identity()
         return model
 
     def forward(self, top, side):

@@ -18,12 +18,13 @@ class ResNet50_F(nn.Module):
     def __init__(self, n_classes, dropout=0.3):
         super().__init__()
         self.backbones = nn.ModuleList([self._create_backbone() for _ in range(2)])
-        in_features = self._create_backbone().get_classifier().in_features
+        backbone = timm.create_model('resnet50d', pretrained=True)
+        in_features = backbone.get_classifier().in_features
         self.classifier = nn.Sequential(
             nn.Linear(in_features * 2, 512),
             nn.ReLU(),
             nn.Dropout(dropout),
-            nn.Linear(n_classes)
+            nn.Linear(512, n_classes)
         )
 
     def _create_backbone(self):

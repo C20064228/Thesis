@@ -1,7 +1,5 @@
-import warnings
-warnings.simplefilter("ignore")
-
 import os
+import warnings
 import time
 import logging
 import numpy as np
@@ -15,7 +13,7 @@ from collections import OrderedDict
 from torchvision import transforms
 from torchvision.transforms import ToPILImage
 from torch.utils.data import DataLoader
-from torch.optim.lr_scheduler import StepLR, CosineAnnealingLR, OneCycleLR
+from torch.optim.lr_scheduler import CosineAnnealingLR
 from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import f1_score, cohen_kappa_score
 from tqdm import tqdm
@@ -28,6 +26,13 @@ from Models.ResNet50 import *
 from Models.ViT import *
 from Models.HCTNet import *
 from Models.MidNet import *
+
+os.environ["HF_HUB_OFFLINE"] = "1"
+os.environ["HF_HUB_HTTP_VERBOSE"] = "0"
+logging.getLogger("httpx").disabled = True
+logging.getLogger("httpcore").disabled = True
+warnings.simplefilter("ignore")
+warnings.filterwarnings("ignore", category=FutureWarning, module="torch.cuda")
 
 for name in logging.root.manager.loggerDict:
     if "huggingface" in name or "timm" in name:
@@ -76,29 +81,25 @@ def train(args, output_dir):
     label_df = pd.read_csv('Data/Labels_Count.csv')
     classes = tuple(label_df.sort_values('Encode')['Label'])
     df = torch.load('Data/Dataset.pt', weights_only=False)
-    imgs, labels = df[args.view], df['Label']
-
-    to_pil = ToPILImage()   # tensor -> PIL Image 変換用
+    imgs_top, imgs_side = df['Top'], df['Side']
+    labels = df['Label']
 
     loaders = {}
     skf = StratifiedKFold(n_splits=args.splits, shuffle=True, random_state=42)
-    for fold, (train_idx, test_idx) in enumerate(skf.split(imgs, labels)):
-        df_train, label_train = make_dataset(train_idx, imgs, labels)
-        df_test, label_test = make_dataset(test_idx, imgs, labels)
-        if args.diffusion:
-            few_classes_idx = [i for i, label in enumerate(label_train) if label in args.few_classes]
-            if few_classes_idx:
-                pil_imgs_train = [(to_pil((df_train[i] + 1).clamp(0, 1))) for i in few_classes_idx]
-                pil_labels_train = [label_train[i] for i in few_classes_idx]
-
-                gen_imgs, gen_labels = [], []
-                class_to_indices = {cls: [] for cls in args.few_classes}
-                for idx, label in zip(few_classes_idx, pil_labels_train):
-                    class_to_indices[label].append(idx)
-        
+    for fold, (train_idx, test_idx) in enumerate(skf.split(imgs_top, labels)):
+        if args.view in ['Top', 'Side']:
+            imgs = imgs_top if args.view == 'Top' else imgs_side
+            df_train, label_train = make_dataset(train_idx, imgs, labels)
+            df_test, label_test = make_dataset(test_idx, imgs, labels)
+            train_dataset = OriginalDataset(args, imgs=df_train, imgs_other=None, labels=label_train, transform=get_transform(True))
+            test_dataset = OriginalDataset(args, imgs=df_test, imgs_other=None, labels=label_test, transform=get_transform(False))
         else:
-            train_dataset = OriginalDataset(df_train, label_train, transform=get_transform(True))
-            test_dataset = OriginalDataset(df_test, label_test, transform=get_transform(False))
+            top_train, label_train = make_dataset(train_idx, imgs_top, labels)
+            side_train, _ = make_dataset(train_idx, imgs_side, labels)
+            top_test, label_test = make_dataset(test_idx, imgs_top, labels)
+            side_test, _ = make_dataset(test_idx, imgs_side, labels)
+            train_dataset = OriginalDataset(args, imgs=top_train, imgs_other=side_train, labels=label_train, transform=get_transform(True))
+            test_dataset = OriginalDataset(args, imgs=top_test, imgs_other=side_test, labels=label_test, transform=get_transform(False))
         loaders[fold] = {
             'Train': DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True),
             'Test': DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False)
@@ -136,8 +137,12 @@ def train(args, output_dir):
                     Preds, Labels = [], []
                     model.train()
                     for imgs, labels in tqdm(loaders[fold]['Train'], desc=f'{"Train":<10}', bar_format=args.format, ascii=args.ascii, leave=False):
-                        inputs = (imgs.to(device), )
                         labels = labels.to(device)
+                        if args.view in ['Top', 'Side']:
+                            inputs = (imgs.to(device),)
+                        else:
+                            imgs_top, imgs_side = imgs
+                            inputs = (imgs_top.to(device), imgs_side.to(device))
                         optimizer.zero_grad()
                         if args.model == 'MidNet':
                             outputs, kd_loss = model(*inputs, kd=True)
@@ -157,8 +162,12 @@ def train(args, output_dir):
                     model.eval()
                     with torch.no_grad():
                         for imgs, labels in tqdm(loaders[fold]['Test'], desc=f'{"Test":<10}', bar_format=args.format, ascii=args.ascii, leave=False):
-                            inputs = (imgs.to(device), )
                             labels = labels.to(device)
+                            if args.view in ['Top', 'Side']:
+                                inputs = (imgs.to(device),)
+                            else:
+                                imgs_top, imgs_side = imgs
+                                inputs = (imgs_top.to(device), imgs_side.to(device))
                             start_time = time.time()
                             if args.model == 'MidNet':
                                 outputs, kd_loss = model(*inputs, kd=True)
