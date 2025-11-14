@@ -51,8 +51,8 @@ class HCTNet_F(nn.Module):
         self.resnets = nn.ModuleList([self._create_resnet() for _ in range(2)])
         self.vits = nn.ModuleList([self._create_vit() for _ in range(2)])
 
-        resnet_feat = self.resnets[0].get_classifier().in_features
-        vit_feat = self.vits[0].head.in_features
+        resnet_feat = self.resnets[0].num_features
+        vit_feat = self.vits[0].num_features
 
         self.resnet_proj = nn.Sequential(
             nn.Linear(resnet_feat, 512),

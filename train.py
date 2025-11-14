@@ -52,6 +52,7 @@ def train(args, output_dir):
             model_dict = {
                 'ResNet50': ResNet50_F,
                 'ViT': ViT_F,
+                'HCTNet': HCTNet_F,
             }
         model_class = model_dict.get(args.model)
         model = model_class(n_classes)
