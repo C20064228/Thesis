@@ -58,8 +58,8 @@ def train(args, output_dir):
 
     np_labels = labels.numpy()
     df_train, df_test, label_train, label_test = train_test_split(imgs, labels, test_size=0.2, random_state=42, stratify=np_labels)
-    train_dataset = OriginalDataset(df_train, label_train, transform=get_transform(True))
-    test_dataset = OriginalDataset(df_test, label_test, transform=get_transform(False))
+    train_dataset = OriginalDataset(args, imgs=df_train, imgs_other=None, labels=label_train, transform=get_transform(True))
+    test_dataset = OriginalDataset(args, imgs=df_test, imgs_other=None, labels=label_test, transform=get_transform(False))
     train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
     test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False)
 
@@ -72,7 +72,7 @@ def train(args, output_dir):
     log_path = os.path.join(output_dir, 'train.log')
     logging.basicConfig(filename=log_path, level=logging.INFO, format='%(message)s', filemode='w')
 
-    alpha_list = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+    alpha_list = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
     histories = {}
     n_alpha = 0
     with tqdm(total=len(alpha_list), desc=f'{f"alpha":<10}', bar_format=args.format, ascii=args.ascii) as pbar:
@@ -161,7 +161,7 @@ def train(args, output_dir):
             else:
                 df = pd.DataFrame([row])
 
-            alpha_order = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+            alpha_order = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
             df['Alpha'] = pd.Categorical(df['Alpha'], categories=alpha_order, ordered=True)
             df = df.sort_values(['Alpha']).reset_index(drop=True)
             df.to_csv(filename, index=False)
@@ -172,9 +172,9 @@ def train(args, output_dir):
             for i, (n, record) in enumerate(histories.items(), start=0):
                 col = cmap(i % 10)
                 history = record['alpha']
-                ax[0].plot(history[:, 0], history[:, 1], label=rf'$\alpha$ = {(n + 1) / 10}', color=col)
+                ax[0].plot(history[:, 0], history[:, 1], label=rf'$\alpha$ = {alpha_list[i]}', color=col)
                 ax[0].plot(history[:, 0], history[:, 2], color=col, linestyle=':')
-                ax[1].plot(history[:, 0], history[:, 3], label=rf'$\alpha$ = {(n + 1) / 10}', color=col)
+                ax[1].plot(history[:, 0], history[:, 3], label=rf'$\alpha$ = {alpha_list[i]}', color=col)
                 ax[1].plot(history[:, 0], history[:, 4], color=col, linestyle=':')
             ax[0].set_title('Loss Curve', fontsize=20)
             ax[0].set_xlabel('Epochs', fontsize=14)
