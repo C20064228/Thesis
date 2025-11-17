@@ -1,9 +1,9 @@
 python train.py \
---view 'Top' \
---model 'MidNet'
+--view 'Fusion' \
+--model 'HCTNet'
 
 python train.py \
---view 'Side' \
+--view 'Fusion' \
 --model 'MidNet'
 
 git add .

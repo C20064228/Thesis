@@ -66,6 +66,7 @@ class MidNet(nn.Module):
 
 class MidNet_F(nn.Module):
     def __init__(self, n_classes, dropout=0.3, temperature=4.0):
+        super().__init__()
         self.temperature = temperature
         self.resnets = nn.ModuleList([self._create_resnet() for _ in range(2)])
         self.vits = nn.ModuleList([self._create_vit() for _ in range(2)])
