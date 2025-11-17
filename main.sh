@@ -1,14 +1,10 @@
-python test_alpha.py \
+python train.py \
 --view 'Top' \
 --model 'MidNet'
 
 python train.py \
---view 'Fusion' \
---model 'ResNet50'
-
-python train.py \
---view 'Fusion' \
---model 'ViT'
+--view 'Side' \
+--model 'MidNet'
 
 git add .
 git commit -m 'Auto commit'
