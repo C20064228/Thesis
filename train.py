@@ -24,7 +24,6 @@ from Utils.eval_func import eval_history, confusion, summarize_result
 
 from Models.ResNet50 import *
 from Models.ViT import *
-from Models.HCTNet import *
 from Models.MidNet import *
 
 os.environ["HF_HUB_OFFLINE"] = "1"
@@ -43,14 +42,14 @@ def train(args, output_dir):
         n_classes = len(classes)
         if args.view in ['Top', 'Side']:
             model_dict = {
-                'ResNet50': ResNet50,
+                'ResNet50': ResNet18,
                 'ViT': ViT,
                 'HCTNet': MidNet,
                 'MidNet': MidNet
             }
         else:
             model_dict = {
-                'ResNet50': ResNet50_F,
+                'ResNet50': ResNet18_F,
                 'ViT': ViT_F,
                 'HCTNet': MidNet_F,
                 'MidNet': MidNet_F

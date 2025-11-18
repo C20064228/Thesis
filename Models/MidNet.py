@@ -8,9 +8,9 @@ class MidNet(nn.Module):
         super().__init__()
         self.temperature = temperature
 
-        self.resnet = timm.create_model('resnet50d', pretrained=True)
+        self.resnet = timm.create_model('resnet18', pretrained=True)
         for param in self.resnet.parameters():
-            param.requires_grad = True
+            param.requires_grad = False
         resnet_feat = self.resnet.get_classifier().in_features
         self.resnet.fc = nn.Identity()
         self.resnet_proj = nn.Sequential(
@@ -21,7 +21,7 @@ class MidNet(nn.Module):
 
         self.vit = timm.create_model('vit_base_patch16_224', pretrained=True)
         for param in self.vit.parameters():
-            param.requires_grad = True
+            param.requires_grad = False
         vit_feat = self.vit.head.in_features
         self.vit.head = nn.Identity()
         self.vit_proj = nn.Sequential(
@@ -109,16 +109,16 @@ class MidNet_F(nn.Module):
         )
 
     def _create_resnet(self):
-        model = timm.create_model('resnet50d', pretrained=True)
+        model = timm.create_model('resnet18', pretrained=True)
         for p in model.parameters():
-            p.requires_grad = True
+            p.requires_grad = False
         model.fc = nn.Identity()
         return model
 
     def _create_vit(self):
         model = timm.create_model('vit_base_patch16_224', pretrained=True)
         for p in model.parameters():
-            p.requires_grad = True
+            p.requires_grad = False
         model.head = nn.Identity()
         return model
 
