@@ -10,7 +10,7 @@ class MidNet(nn.Module):
 
         self.resnet = timm.create_model('resnet18', pretrained=True)
         for param in self.resnet.parameters():
-            param.requires_grad = False
+            param.requires_grad = True
         resnet_feat = self.resnet.get_classifier().in_features
         self.resnet.fc = nn.Identity()
         self.resnet_proj = nn.Sequential(
@@ -21,7 +21,7 @@ class MidNet(nn.Module):
 
         self.vit = timm.create_model('vit_base_patch16_224', pretrained=True)
         for param in self.vit.parameters():
-            param.requires_grad = False
+            param.requires_grad = True
         vit_feat = self.vit.head.in_features
         self.vit.head = nn.Identity()
         self.vit_proj = nn.Sequential(

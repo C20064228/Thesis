@@ -42,14 +42,14 @@ def train(args, output_dir):
         n_classes = len(classes)
         if args.view in ['Top', 'Side']:
             model_dict = {
-                'ResNet50': ResNet18,
+                'ResNet18': ResNet18,
                 'ViT': ViT,
                 'HCTNet': MidNet,
                 'MidNet': MidNet
             }
         else:
             model_dict = {
-                'ResNet50': ResNet18_F,
+                'ResNet18': ResNet18_F,
                 'ViT': ViT_F,
                 'HCTNet': MidNet_F,
                 'MidNet': MidNet_F
