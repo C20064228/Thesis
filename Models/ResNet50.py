@@ -7,7 +7,7 @@ class ResNet18(nn.Module):
         super().__init__()
         self.model = timm.create_model('resnet18', pretrained=True)
         for param in self.model.parameters():
-            param.requires_grad = False
+            param.requires_grad = True
         in_features = self.model.get_classifier().in_features
         self.model.fc = nn.Linear(in_features, n_classes)
 
@@ -30,7 +30,7 @@ class ResNet18_F(nn.Module):
     def _create_backbone(self):
         model = timm.create_model('resnet18', pretrained=True)
         for param in model.parameters():
-            param.requires_grad = False
+            param.requires_grad = True
         model.fc = nn.Identity()
         return model
 

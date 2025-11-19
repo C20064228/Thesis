@@ -111,14 +111,14 @@ class MidNet_F(nn.Module):
     def _create_resnet(self):
         model = timm.create_model('resnet18', pretrained=True)
         for p in model.parameters():
-            p.requires_grad = False
+            p.requires_grad = True
         model.fc = nn.Identity()
         return model
 
     def _create_vit(self):
         model = timm.create_model('vit_base_patch16_224', pretrained=True)
         for p in model.parameters():
-            p.requires_grad = False
+            p.requires_grad = True
         model.head = nn.Identity()
         return model
 

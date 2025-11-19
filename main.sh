@@ -1,9 +1,5 @@
 python train.py \
 --view 'Top' \
---model 'ResNet18'
-
-python train.py \
---view 'Top' \
 --model 'ViT'
 
 python train.py \
