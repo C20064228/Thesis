@@ -180,6 +180,7 @@ class MidNet_F(nn.Module):
 
         kd_topside = kd_topside * (T ** 2)
 
-        kd_total = kd_resvit + kd_topside
+        #kd_total = 0.5 * kd_resvit + 0.1 * kd_topside
+        kd_total = 0.5 * kd_resvit
 
         return logits, kd_total

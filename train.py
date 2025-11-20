@@ -148,7 +148,8 @@ def train(args, output_dir):
                         if args.model == 'MidNet':
                             outputs, kd_loss = model(*inputs, kd=True)
                             ce_loss = criterion(outputs, labels)
-                            loss = ce_loss + args.alpha * kd_loss
+                            #loss = ce_loss + args.alpha * kd_loss
+                            loss = ce_loss + kd_loss
                         else:
                             outputs = model(*inputs)
                             loss = criterion(outputs, labels)
@@ -174,7 +175,8 @@ def train(args, output_dir):
                                 outputs, kd_loss = model(*inputs, kd=True)
                                 end_time = time.time()
                                 ce_loss = criterion(outputs, labels)
-                                loss = ce_loss + args.alpha * kd_loss
+                                #loss = ce_loss + args.alpha * kd_loss
+                                loss = ce_loss + kd_loss
                             else:
                                 outputs = model(*inputs)
                                 end_time = time.time()
@@ -227,7 +229,7 @@ def train(args, output_dir):
 
 if __name__ == '__main__':
     args = get_args()
-    output_dir = f'Output/{args.view}/{args.model}'
+    output_dir = f'Output/{args.view}/{args.model}_'
     if not os.path.exists(output_dir):
         os.makedirs(output_dir, exist_ok=True)
     print(f'[{args.view:^10}:{args.model:^10}]')
