@@ -109,7 +109,7 @@ class MidNet_F(nn.Module):
         )
 
     def _create_resnet(self):
-        model = timm.create_model('resnet18', pretrained=True)
+        model = timm.create_model('resnet50d', pretrained=True)
         for p in model.parameters():
             p.requires_grad = True
         model.fc = nn.Identity()
@@ -180,7 +180,7 @@ class MidNet_F(nn.Module):
 
         kd_topside = kd_topside * (T ** 2)
 
-        #kd_total = 0.5 * kd_resvit + 0.1 * kd_topside
-        kd_total = 0.5 * kd_resvit
+        #kd_total = kd_resvit + kd_topside
+        kd_total = kd_resvit
 
         return logits, kd_total
